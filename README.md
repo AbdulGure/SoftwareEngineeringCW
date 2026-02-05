@@ -57,7 +57,7 @@
 - [ ] Team meeting Monday Feb 17: Sprint 2 planning (1 hour)
 
 #### **Frontend Team Tasks**
-- **Member 1 (You):**
+- **Member 1 (Jonathan):**
   - [ ] Create detailed wireframes using Figma/Balsamiq (Feb 12-15)
     - Homepage/Dashboard
     - User Profile page
@@ -67,20 +67,20 @@
   - [ ] Create activity diagrams for user flows (Feb 15-17)
   - [ ] Write user stories for frontend features (Feb 17-18)
 
-- **Member 2:**
+- **Member 2 (john):**
   - [ ] Design mockups with colors/fonts applied (Feb 12-15)
   - [ ] Create responsive layout plans (mobile/desktop) (Feb 15-17)
   - [ ] Write user stories for UI interactions (Feb 17-18)
   - [ ] Start Sprint 2 documentation layout (Feb 17-18)
 
 #### **Backend Team Tasks**
-- **Member 3:**
+- **Member 3(Anwar):**
   - [ ] Finalize database ERD diagram (Feb 12-14)
   - [ ] Create detailed table schemas with field types (Feb 14-16)
   - [ ] Write SQL scripts to create tables (Feb 16-18)
   - [ ] Write user stories for database features (Feb 17-18)
 
-- **Member 4:**
+- **Member 4 (Abdul):**
   - [ ] Create use case diagram for all features (Feb 12-14)
   - [ ] Map out all API endpoints with request/response (Feb 14-16)
   - [ ] Create sequence diagrams for key interactions (Feb 16-18)
