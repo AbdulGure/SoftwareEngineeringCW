@@ -23,7 +23,7 @@
 - [ ] Attend Week 4 Code Review meeting (Feb 10-11)
 
 #### **Frontend Team Tasks**
-- **Jonathan:**
+- **Jonathan:** hi guys
   - [ ] Research fitness app UI/UX examples (Pinterest, Dribbble)
   - [ ] Draft initial wireframes for 5 core pages (paper sketches OK)
   - [ ] Choose color scheme and fonts
