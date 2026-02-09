@@ -24,7 +24,7 @@
 
 #### **Frontend Team Tasks**
 - **Jonathan:** hi guys
-  - [ ] Research fitness app UI/UX examples (Pinterest, Dribbble)
+  - [ ] Research fitness app UI/UX examples (Pinterest, Dribbble, RockMyRun, HeiaHeia, Garmin Connect, Lifesum / MyFitnessPal) added more
   - [ ] Draft initial wireframes for 5 core pages (paper sketches OK)
   - [ ] Choose color scheme and fonts
   
