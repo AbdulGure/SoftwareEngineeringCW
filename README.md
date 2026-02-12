@@ -23,7 +23,7 @@
 - [ ] Attend Week 4 Code Review meeting (Feb 10-11)
 
 #### **Frontend Team Tasks**
-- **Jonathan:** hi guys
+- **Jonathan:** 
   - [ ] Research fitness app UI/UX examples (Pinterest, Dribbble, RockMyRun, HeiaHeia, Garmin Connect, Lifesum / MyFitnessPal) added more
   - [ ] Draft initial wireframes for 5 core pages (paper sketches OK)
   - [ ] Choose color scheme and fonts
