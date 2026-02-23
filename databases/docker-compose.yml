@@ -1,0 +1,77 @@
+version: '3.8'
+
+# ============================================================================
+# FITSHARE - Docker Compose (Database)
+# Author: Anwar (Backend Lead)
+# Sprint: Sprint 2 (Feb 12-18, 2026)
+#
+# Usage:
+#   Start:   docker-compose up -d
+#   Stop:    docker-compose down
+#   Reset:   docker-compose down -v   (wipes data volume)
+#   Logs:    docker-compose logs -f db
+#   MySQL:   docker exec -it fitshare_db mysql -u fitshare_user -p
+# ============================================================================
+
+services:
+
+  # --------------------------------------------------------------------------
+  # MySQL Database
+  # --------------------------------------------------------------------------
+  db:
+    image: mysql:8.0
+    container_name: fitshare_db
+    restart: unless-stopped
+
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: fitshare
+      MYSQL_USER: fitshare_user
+      MYSQL_PASSWORD: fitshare_pass
+
+    ports:
+      - "3306:3306"   # accessible from host at localhost:3306
+
+    volumes:
+      # Persist data between restarts
+      - db_data:/var/lib/mysql
+      # Auto-run SQL scripts on first start (alphabetical order)
+      - ./init:/docker-entrypoint-initdb.d
+
+    command:
+      - '--character-set-server=utf8mb4'
+      - '--collation-server=utf8mb4_unicode_ci'
+      - '--default-authentication-plugin=mysql_native_password'
+
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "fitshare_user", "-pfitshare_pass"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # --------------------------------------------------------------------------
+  # Adminer - lightweight browser-based DB UI (optional)
+  # Access at: http://localhost:8080
+  #   System:   MySQL
+  #   Server:   db
+  #   Username: fitshare_user
+  #   Password: fitshare_pass
+  #   Database: fitshare
+  # --------------------------------------------------------------------------
+  adminer:
+    image: adminer:latest
+    container_name: fitshare_adminer
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+# ------------------------------------------------------------------------------
+# Named volume so MySQL data survives container restarts
+# ------------------------------------------------------------------------------
+volumes:
+  db_data:
+    driver: local
