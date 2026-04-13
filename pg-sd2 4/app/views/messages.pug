@@ -1,0 +1,18 @@
+extends layout
+
+block content
+  .container
+    h1 Messages
+    if conversations && conversations.length
+      .conversations-list
+        each convo in conversations
+          a.conversation-card(href='/messages/' + convo.id)
+            if convo.profile_picture_url
+              img.conv-avatar(src=convo.profile_picture_url alt=convo.first_name)
+            .conv-info
+              h3= convo.first_name + ' ' + convo.last_name
+              p.conv-preview= convo.last_message
+    else
+      .empty-state
+        p No messages yet. Connect with a buddy to start chatting!
+        a.btn(href='/buddies') Find Buddies

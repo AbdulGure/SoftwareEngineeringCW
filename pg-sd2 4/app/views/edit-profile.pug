@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  .container
+    a.back-link(href='/user/' + user.id) ← Back to Profile
+    h1 Edit Profile
+    if error
+      .error-message= error
+    if success
+      .success-message= success
+    form(method="POST" action='/user/' + user.id + '/edit')
+      .form-group
+        label First Name
+        input(type="text" name="first_name" value=user.first_name required)
+      .form-group
+        label Last Name
+        input(type="text" name="last_name" value=user.last_name required)
+      .form-group
+        label Bio
+        textarea(name="bio" rows="3")= user.bio
+      .form-group
+        label Fitness Level
+        select(name="fitness_level")
+          option(value="beginner" selected=user.fitness_level === 'beginner') Beginner
+          option(value="intermediate" selected=user.fitness_level === 'intermediate') Intermediate
+          option(value="advanced" selected=user.fitness_level === 'advanced') Advanced
+      .form-group
+        label Profile Picture URL
+        input(type="text" name="profile_picture_url" value=user.profile_picture_url placeholder="https://...")
+      button.btn(type="submit") Save Changes

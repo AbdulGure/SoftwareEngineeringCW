@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  .container
+    a.back-link(href='/workouts') ← Back to Workouts
+    .profile-card
+      h1= workout.exercise_type
+      p.workout-meta
+        strong= workout.first_name + ' ' + workout.last_name
+        span  · 
+        span= workout.duration + ' mins'
+        span  · 
+        span= new Date(workout.date).toDateString()
+      if workout.notes
+        p= workout.notes
+      if tags && tags.length
+        .tags-section
+          h3 Tags
+          .tags-list
+            each tag in tags
+              span.tag= tag.tag_name

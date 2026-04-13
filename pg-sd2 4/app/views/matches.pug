@@ -1,0 +1,29 @@
+extends layout
+
+block content
+  .container
+    a.back-link(href='/buddies') ← Back to Buddies
+    h1 Workout Buddy Matches
+    if matches && matches.length
+      .users-grid
+        each match in matches
+          .card
+            .card-body
+              if match.profile_picture_url
+                img.card-avatar(src=match.profile_picture_url alt=match.first_name)
+              h3= match.first_name + ' ' + match.last_name
+              span.badge= match.fitness_level.toUpperCase()
+              p= match.bio
+              if match.goals
+                p.workout-meta Goals: #{match.goals}
+              if match.availability
+                p.workout-meta Available: #{match.availability}
+              .card-actions
+                a.btn-small(href='/user/' + match.id) View Profile
+                form(method="POST" action="/buddy/connect/" + match.id)
+                  button.btn-connect(type="submit") Connect
+                a.btn-message(href='/messages/' + match.id) Message
+    else
+      .empty-state
+        p No matches found. Try updating your fitness level in your profile.
+        a.btn(href='/buddies') Back to Buddies

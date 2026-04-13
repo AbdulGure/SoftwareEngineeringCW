@@ -1,0 +1,18 @@
+header
+  .container.nav-container
+    a.nav-brand(href='/') 💪 FitShare
+    nav.nav-links
+      a(href='/') Home
+      if sessionUser
+        if sessionUser.role === 'admin'
+          a(href='/users') Users
+        a(href='/workouts') Workouts
+        a(href='/buddies') Buddies
+        a(href='/leaderboard') 🏆 Leaderboard
+        a(href='/connections') Connections
+        a(href='/messages') Messages
+        a(href='/user/' + sessionUser.id) My Profile
+        a(href='/logout') Log Out
+      else
+        a(href='/login') Log In
+        a(href='/register') Register

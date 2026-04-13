@@ -1,0 +1,63 @@
+extends layout
+
+block content
+  .container
+    h1 My Connections
+
+    if requests && requests.length
+      h2 Pending Requests
+      .users-grid
+        each user in requests
+          .card
+            .card-body
+              if user.profile_picture_url
+                img.card-avatar(src=user.profile_picture_url alt=user.first_name)
+              h3= user.first_name + ' ' + user.last_name
+              span.badge= user.fitness_level.toUpperCase()
+              .card-actions
+                form(method="POST" action="/buddy/accept/" + user.id)
+                  button.btn-connect(type="submit") ✓ Accept
+                form(method="POST" action="/buddy/decline/" + user.id)
+                  button.btn-decline(type="submit") ✗ Decline
+                a.btn-message(href='/messages/' + user.id) Message
+
+    if sent && sent.length
+      h2 Requests Sent
+      .users-grid
+        each user in sent
+          .card
+            .card-body
+              if user.profile_picture_url
+                img.card-avatar(src=user.profile_picture_url alt=user.first_name)
+              h3= user.first_name + ' ' + user.last_name
+              span.badge= user.fitness_level.toUpperCase()
+              p.workout-meta ⏳ Waiting for response
+
+    if connections && connections.length
+      h2 My Buddies
+      .users-grid
+        each user in connections
+          .card
+            .card-body
+              if user.profile_picture_url
+                img.card-avatar(src=user.profile_picture_url alt=user.first_name)
+              h3= user.first_name + ' ' + user.last_name
+              span.badge= user.fitness_level.toUpperCase()
+              .card-actions
+                a.btn-small(href='/user/' + user.id) View Profile
+                a.btn-message(href='/messages/' + user.id) Message
+              .rating-form
+                p Rate this buddy:
+                form(method="POST" action="/buddy/rate/" + user.id)
+                  .star-rating
+                    each star in [1,2,3,4,5]
+                      label
+                        input(type="radio" name="rating" value=star required)
+                        span ⭐
+                  textarea(name="review" rows="2" placeholder="Leave a review (optional)")
+                  button.btn-small(type="submit") Submit Rating
+
+    if (!requests || !requests.length) && (!sent || !sent.length) && (!connections || !connections.length)
+      .empty-state
+        p You have no connections yet.
+        a.btn(href='/buddies') Find Buddies

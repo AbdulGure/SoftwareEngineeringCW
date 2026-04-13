@@ -1,0 +1,30 @@
+extends layout
+
+block content
+  .container
+    h1 🏆 Leaderboard
+    .leaderboard-table
+      .leaderboard-header
+        span Rank
+        span Player
+        span Points
+        span Workouts
+        span Streak
+        span Badges
+      each leader, index in leaders
+        .leaderboard-row(class=index === 0 ? 'gold' : index === 1 ? 'silver' : index === 2 ? 'bronze' : '')
+          span.rank= index + 1
+          .player-info
+            if leader.profile_picture_url
+              img.small-avatar(src=leader.profile_picture_url alt=leader.first_name)
+            span= leader.first_name + ' ' + leader.last_name
+          span.points= leader.total_points + ' pts'
+          span.workouts= leader.workout_count + ' workouts'
+          span.streak 🔥 #{leader.current_streak} days
+          span.badges
+            if leader.current_streak >= 7
+              span ⚡
+            if leader.total_points >= 100
+              span 💯
+            if leader.total_points >= 500
+              span 🏆

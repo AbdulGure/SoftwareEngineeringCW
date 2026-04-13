@@ -1,0 +1,35 @@
+extends layout
+
+block content
+  .container
+    h1 Log a Workout
+    if error
+      .error-message= error
+    form(method="POST" action="/workouts")
+      .form-group
+        label Date
+        input(type="date" name="date" required)
+      .form-group
+        label Exercise Type
+        select(name="exercise_type" required)
+          option(value="cardio") Cardio
+          option(value="weightlifting") Weightlifting
+          option(value="hiit") HIIT
+          option(value="yoga") Yoga
+          option(value="cycling") Cycling
+          option(value="running") Running
+          option(value="swimming") Swimming
+      .form-group
+        label Duration (minutes)
+        input(type="number" name="duration" min="1" required)
+      .form-group
+        label Notes (optional)
+        textarea(name="notes" rows="3")
+      .form-group
+        label Tags
+        .tags-grid
+          each tag in tags
+            label.tag-option
+              input(type="checkbox" name="tags" value=tag.id)
+              span= tag.tag_name
+      button.btn(type="submit") Log Workout

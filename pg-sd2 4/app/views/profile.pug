@@ -1,0 +1,75 @@
+extends layout
+
+block content
+  .container
+    a.back-link(href='/users') ← Back to Users
+
+    .profile-header
+      if user.profile_picture_url
+        img.profile-avatar(src=user.profile_picture_url alt=user.first_name)
+      .profile-info
+        h1= user.first_name + ' ' + user.last_name
+        span.badge= user.fitness_level.toUpperCase()
+        if avgRating && avgRating.count > 0
+          p.rating ⭐ #{parseFloat(avgRating.avg).toFixed(1)} / 5 (#{avgRating.count} ratings)
+        p= user.bio
+
+    .stats-row
+      .stat-card
+        span.stat-number= workoutCount
+        span.stat-label Workouts
+      .stat-card
+        span.stat-number= points ? points.total_points : 0
+        span.stat-label Points
+      .stat-card
+        span.stat-number 🔥 #{points ? points.current_streak : 0}
+        span.stat-label Day Streak
+      .stat-card
+        span.stat-number= points ? points.longest_streak : 0
+        span.stat-label Best Streak
+
+    if badges && badges.length
+      .badges-section
+        h2 Badges
+        .badges-list
+          each badge in badges
+            .badge-item
+              span.badge-icon= badge.badge_icon
+              span.badge-name= badge.badge_name
+
+    .profile-grid
+      section.profile-section
+        h2 Recent Workouts
+        if workouts && workouts.length
+          table.workout-table
+            thead
+              tr
+                th Type
+                th Duration
+                th Date
+            tbody
+              each workout in workouts
+                tr
+                  td= workout.exercise_type
+                  td= workout.duration + ' mins'
+                  td= new Date(workout.date).toDateString()
+        else
+          p No workouts logged yet.
+
+      section.profile-section
+        h2 Buddy Matching
+        if buddy
+          .buddy-card
+            p.available ✓ Available for buddy matching
+            p
+              strong Preferred Time: 
+              | #{buddy.availability}
+            p
+              strong Goals: 
+              | #{buddy.goals}
+            a.btn(href='/matches/' + user.id) Find Matches
+        else
+          .buddy-card.unavailable
+            p ✗ Not available for buddy matching
+
+    a.btn(href='/user/' + user.id + '/edit') Edit Profile

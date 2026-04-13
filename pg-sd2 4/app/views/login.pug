@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  .auth-container
+    h1 Log In to FitShare
+    if error
+      .error-message= error
+    form(method="POST" action="/login")
+      .form-group
+        label Email
+        input(type="email" name="email" required)
+      .form-group
+        label Password
+        input(type="password" name="password" required)
+      button.btn(type="submit") Log In
+    p.auth-link Don't have an account? 
+      a(href="/register") Register here

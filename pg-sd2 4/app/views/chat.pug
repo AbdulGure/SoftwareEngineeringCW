@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  .container
+    a.back-link(href='/messages') ← Back to Messages
+    .chat-header
+      if otherUser.profile_picture_url
+        img.card-avatar(src=otherUser.profile_picture_url alt=otherUser.first_name)
+      h2= otherUser.first_name + ' ' + otherUser.last_name
+    .chat-messages
+      each msg in messages
+        .message(class=msg.sender_id === sessionUser.id ? 'message-sent' : 'message-received')
+          .message-bubble= msg.message
+          .message-time= new Date(msg.created_at).toLocaleTimeString()
+    form.chat-form(method="POST" action='/messages/' + otherUser.id)
+      input.chat-input(type="text" name="message" placeholder="Type a message..." required)
+      button.btn(type="submit") Send

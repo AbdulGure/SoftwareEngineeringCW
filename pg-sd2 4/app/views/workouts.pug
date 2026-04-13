@@ -1,0 +1,22 @@
+extends layout
+
+block content
+  .container
+    .page-header
+      h1 All Workouts
+      if sessionUser
+        a.btn(href='/workouts/log') Log a Workout
+    .workouts-grid
+      each workout in workouts
+        .card
+          .card-body
+            h3= workout.exercise_type
+            p.workout-meta
+              span= workout.first_name + ' ' + workout.last_name
+              span  · 
+              span= workout.duration + ' mins'
+              span  · 
+              span= new Date(workout.date).toDateString()
+            if workout.notes
+              p.workout-notes= workout.notes
+            a.btn-small(href='/workouts/' + workout.id) View Details

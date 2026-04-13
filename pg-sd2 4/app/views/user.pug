@@ -1,0 +1,17 @@
+extends layout
+
+block content
+  main.container
+    h1.page-title All Users
+    .users-grid
+      each user in users
+        a.card-link(href=`/users/${user.id}`)
+          .card
+            img.card-avatar(
+              src=`https://i.pravatar.cc/150?u=${user.id}`
+              alt=`${user.first_name} profile picture`
+            )
+            .card-body
+              h2.card-name #{user.first_name} #{user.last_name}
+              span(class=`badge badge--${user.fitness_level.toLowerCase()}`)= user.fitness_level
+              p.card-bio= user.bio

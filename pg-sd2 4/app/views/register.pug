@@ -1,0 +1,32 @@
+extends layout
+
+block content
+  .auth-container
+    h1 Create an Account
+    if error
+      .error-message= error
+    form(method="POST" action="/register")
+      .form-group
+        label First Name
+        input(type="text" name="first_name" required)
+      .form-group
+        label Last Name
+        input(type="text" name="last_name" required)
+      .form-group
+        label Email
+        input(type="email" name="email" required)
+      .form-group
+        label Username
+        input(type="text" name="username" required)
+      .form-group
+        label Password
+        input(type="password" name="password" required)
+      .form-group
+        label Fitness Level
+        select(name="fitness_level")
+          option(value="beginner") Beginner
+          option(value="intermediate") Intermediate
+          option(value="advanced") Advanced
+      button.btn(type="submit") Create Account
+    p.auth-link Already have an account?
+      a(href="/login") Log in here
