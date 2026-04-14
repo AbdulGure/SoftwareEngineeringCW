@@ -17,8 +17,6 @@ jobs:
         with:
           node-version: '20'
       - name: Install dependencies
-        run: npm install
-        working-directory: "./pg-sd2 4"
+        run: cd "pg-sd2 4" && npm install
       - name: Run tests
-        run: npm test
-        working-directory: "./pg-sd2 4"
+        run: cd "pg-sd2 4" && npm test
