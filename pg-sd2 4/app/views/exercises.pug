@@ -1,0 +1,36 @@
+extends layout
+
+block content
+  .container
+    h1 💪 Exercise Suggestions
+    form.search-form(method="GET" action="/exercises")
+      .form-group
+        label Select Muscle Group
+        select(name="muscle")
+          each m in muscles
+            option(value=m selected=m === muscle)= m.charAt(0).toUpperCase() + m.slice(1)
+      button.btn(type="submit") Find Exercises
+
+    if exercises && exercises.length
+      .exercises-grid
+        each exercise in exercises
+          .card
+            .card-body
+              h3= exercise.name
+              .exercise-tags
+                span.tag= exercise.type
+                span.tag= exercise.difficulty
+              p
+                strong Muscle: 
+                | #{exercise.muscle}
+              if exercise.equipment
+                p
+                  strong Equipment: 
+                  | #{exercise.equipment}
+              if exercise.instructions
+                details
+                  summary How to do it
+                  p.instructions= exercise.instructions
+    else
+      .empty-state
+        p No exercises found for this muscle group.

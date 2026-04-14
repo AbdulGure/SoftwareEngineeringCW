@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const session = require("express-session");
 const bcrypt = require("bcryptjs");
+const fetch = require("node-fetch");
 const app = express();
 
 // Middleware
@@ -139,7 +140,7 @@ app.post("/register", async (req, res) => {
             [email, password_hash, username, first_name, last_name, fitness_level]
         );
         req.session.user = { id: result.insertId, username, email, fitness_level, role: 'user' };
-        res.redirect("/workouts");
+        res.redirect("/dashboard");
     } catch (err) {
         console.error(err);
         res.render("register", { error: "Something went wrong. Please try again." });
@@ -172,7 +173,7 @@ app.post("/login", async (req, res) => {
             fitness_level: user.fitness_level,
             role: user.role
         };
-        res.redirect("/workouts");
+        res.redirect("/dashboard");
     } catch (err) {
         console.error(err);
         res.render("login", { error: "Something went wrong. Please try again." });
@@ -182,6 +183,57 @@ app.post("/login", async (req, res) => {
 app.get("/logout", (req, res) => {
     req.session.destroy();
     res.redirect("/login");
+});
+
+// -----------------------------
+// Dashboard
+// -----------------------------
+
+app.get('/dashboard', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const userId = req.session.user.id;
+        const user = new User(userId);
+        const details = await user.getById();
+        const points = await db.query(
+            'SELECT * FROM user_points WHERE user_id = ?', [userId]
+        );
+        const badges = await db.query(
+            'SELECT * FROM user_badges WHERE user_id = ?', [userId]
+        );
+        const workoutCount = await db.query(
+            'SELECT COUNT(*) as count FROM workouts WHERE user_id = ?', [userId]
+        );
+        const recentWorkouts = await db.query(`
+            SELECT * FROM workouts 
+            WHERE user_id = ? 
+            ORDER BY date DESC 
+            LIMIT 5
+        `, [userId]);
+        const pendingRequests = await db.query(`
+            SELECT COUNT(*) as count FROM buddy_connections 
+            WHERE buddy_id = ? AND status = 'pending'
+        `, [userId]);
+        const rank = await db.query(`
+            SELECT COUNT(*) + 1 as user_rank 
+            FROM user_points 
+            WHERE total_points > COALESCE(
+                (SELECT total_points FROM user_points WHERE user_id = ?), 0
+            )
+        `, [userId]);
+        res.render('dashboard', {
+            user: details,
+            points: points[0] || null,
+            badges,
+            workoutCount: workoutCount[0].count,
+            recentWorkouts,
+            pendingRequests: pendingRequests[0].count,
+            rank: rank[0].user_rank
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error loading dashboard");
+    }
 });
 
 // -----------------------------
@@ -616,6 +668,65 @@ app.post('/messages/:id', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send("Error sending message");
+    }
+});
+
+// -----------------------------
+// Weather API
+// -----------------------------
+
+app.get('/weather', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const city = req.query.city || 'London';
+        const apiKey = process.env.OPENWEATHER_API_KEY;
+        const response = await fetch(
+            `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`
+        );
+        const data = await response.json();
+        let recommendation = '';
+        if (data.main) {
+            const temp = data.main.temp;
+            const weather = data.weather[0].main;
+            if (weather === 'Rain' || weather === 'Snow' || weather === 'Thunderstorm') {
+                recommendation = 'Bad weather outside — perfect day for an indoor workout! 🏋️';
+            } else if (temp < 5) {
+                recommendation = 'It\'s very cold outside — consider an indoor session today. 🥶';
+            } else if (temp > 25) {
+                recommendation = 'It\'s warm and sunny — great day for a run or cycle! ☀️';
+            } else {
+                recommendation = 'Great weather for an outdoor workout today! 🏃';
+            }
+        }
+        res.render('weather', { weather: data, recommendation, city });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error fetching weather");
+    }
+});
+
+// -----------------------------
+// Exercise API
+// -----------------------------
+
+app.get('/exercises', async (req, res) => {
+    if (!req.session.user) return res.redirect('/login');
+    try {
+        const muscle = req.query.muscle || 'biceps';
+        const apiKey = process.env.API_NINJAS_KEY;
+        const response = await fetch(
+            `https://api.api-ninjas.com/v1/exercises?muscle=${muscle}`,
+            { headers: { 'X-Api-Key': apiKey } }
+        );
+        const exercises = await response.json();
+        const muscles = [
+            'biceps', 'triceps', 'chest', 'back', 'shoulders',
+            'quadriceps', 'hamstrings', 'glutes', 'calves', 'abdominals'
+        ];
+        res.render('exercises', { exercises, muscle, muscles });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Error fetching exercises");
     }
 });
 

@@ -6,13 +6,32 @@ header
       if sessionUser
         if sessionUser.role === 'admin'
           a(href='/users') Users
+        a(href='/dashboard') Dashboard
         a(href='/workouts') Workouts
         a(href='/buddies') Buddies
-        a(href='/leaderboard') 🏆 Leaderboard
+        a(href='/leaderboard') Leaderboard
+        a(href='/weather') Weather
+        a(href='/exercises') Exercises
         a(href='/connections') Connections
         a(href='/messages') Messages
-        a(href='/user/' + sessionUser.id) My Profile
+        a(href='/user/' + sessionUser.id) Profile
         a(href='/logout') Log Out
       else
         a(href='/login') Log In
         a(href='/register') Register
+    button#darkModeToggle.dark-toggle(onclick='toggleDarkMode()') 🌙
+
+script.
+  function toggleDarkMode() {
+    document.body.classList.toggle('dark-mode');
+    const btn = document.getElementById('darkModeToggle');
+    const isDark = document.body.classList.contains('dark-mode');
+    btn.textContent = isDark ? '☀️' : '🌙';
+    localStorage.setItem('darkMode', isDark);
+  }
+
+  // Load saved preference
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('darkModeToggle').textContent = '☀️';
+  }

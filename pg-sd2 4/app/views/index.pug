@@ -1,8 +1,33 @@
 extends layout
 
 block content
-  main.container
+  main
     .hero
-      h1 Welcome to FitShare
-      p Find a workout buddy, track your fitness, and stay motivated.
-      a.btn.btn-primary(href='/users') Browse Users
+      h1 💪 Welcome to FitShare
+      p Connect with workout partners, track your fitness journey, and stay motivated together.
+      if sessionUser
+        .hero-buttons
+          a.btn(href='/dashboard') Go to Dashboard
+          a.btn.btn-outline(href='/workouts/log') Log a Workout
+      else
+        .hero-buttons
+          a.btn(href='/register') Get Started
+          a.btn.btn-outline(href='/login') Log In
+
+    .features
+      .feature-card
+        span.feature-icon 🏋️
+        h3 Log Workouts
+        p Track your sessions with exercise type, duration, tags and notes.
+      .feature-card
+        span.feature-icon 👥
+        h3 Find Buddies
+        p Get matched with compatible workout partners based on your fitness level and goals.
+      .feature-card
+        span.feature-icon 🏆
+        h3 Earn Rewards
+        p Log workouts to earn points, build streaks and unlock badges.
+      .feature-card
+        span.feature-icon 🌤
+        h3 Weather & Training
+        p Check the weather and get workout recommendations based on conditions.

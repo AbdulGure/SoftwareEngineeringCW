@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  .container
+    h1 🌤 Weather & Workout Planner
+    form.search-form(method="GET" action="/weather")
+      .form-group
+        label Enter your city
+        input(type="text" name="city" value=city placeholder="e.g. London")
+      button.btn(type="submit") Check Weather
+
+    if weather && weather.main
+      .weather-card
+        .weather-main
+          h2= weather.name + ', ' + weather.sys.country
+          .weather-temp= Math.round(weather.main.temp) + '°C'
+          .weather-desc= weather.weather[0].description
+          .weather-details
+            span 💧 Humidity: #{weather.main.humidity}%
+            span 💨 Wind: #{weather.main.speed} m/s
+            span 🌡 Feels like: #{Math.round(weather.main.feels_like)}°C
+        .recommendation-box
+          p= recommendation
+          a.btn(href='/workouts/log') Log a Workout
+    else
+      .error-message City not found. Please try again.

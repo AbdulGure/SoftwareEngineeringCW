@@ -1,0 +1,84 @@
+extends layout
+
+block content
+  .container
+    .dashboard-welcome
+      if user.profile_picture_url
+        img.dashboard-avatar(src=user.profile_picture_url alt=user.first_name)
+      .welcome-text
+        h1 Welcome back, #{user.first_name}! 💪
+        span.badge= user.fitness_level.toUpperCase()
+
+    .dashboard-stats
+      .stat-card
+        span.stat-number= workoutCount
+        span.stat-label Total Workouts
+      .stat-card
+        span.stat-number= points ? points.total_points : 0
+        span.stat-label Points
+      .stat-card
+        span.stat-number 🔥 #{points ? points.current_streak : 0}
+        span.stat-label Day Streak
+      .stat-card
+        span.stat-number ##{rank}
+        span.stat-label Leaderboard Rank
+      if pendingRequests > 0
+        .stat-card.alert-card
+          span.stat-number= pendingRequests
+          span.stat-label Pending Requests
+
+    if badges && badges.length
+      .dashboard-section
+        h2 Your Badges
+        .badges-list
+          each badge in badges
+            .badge-item
+              span.badge-icon= badge.badge_icon
+              span.badge-name= badge.badge_name
+
+    .dashboard-grid
+      .dashboard-section
+        h2 Recent Workouts
+        if recentWorkouts && recentWorkouts.length
+          table.workout-table
+            thead
+              tr
+                th Type
+                th Duration
+                th Date
+            tbody
+              each workout in recentWorkouts
+                tr
+                  td= workout.exercise_type
+                  td= workout.duration + ' mins'
+                  td= new Date(workout.date).toDateString()
+          a.btn(href='/workouts/log') Log New Workout
+        else
+          .empty-state
+            p No workouts yet.
+            a.btn(href='/workouts/log') Log Your First Workout
+
+      .dashboard-section
+        h2 Quick Links
+        .quick-links
+          a.quick-link(href='/workouts/log')
+            span.quick-icon 🏋️
+            span Log Workout
+          a.quick-link(href='/buddies')
+            span.quick-icon 👥
+            span Find Buddies
+          a.quick-link(href='/leaderboard')
+            span.quick-icon 🏆
+            span Leaderboard
+          a.quick-link(href='/weather')
+            span.quick-icon 🌤
+            span Weather
+          a.quick-link(href='/exercises')
+            span.quick-icon 💪
+            span Exercises
+          a.quick-link(href='/connections')
+            span.quick-icon 🤝
+            span Connections
+          a.quick-link(href='/messages')
+            span.quick-icon 💬
+            span Messages
