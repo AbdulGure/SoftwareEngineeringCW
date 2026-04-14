@@ -20,8 +20,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: ${{ github.workspace }}/pg-sd2\ 4
+        working-directory: pg-sd2-4
 
       - name: Run tests
         run: node test.js
-        working-directory: ${{ github.workspace }}/pg-sd2\ 4
+        working-directory: pg-sd2-4
