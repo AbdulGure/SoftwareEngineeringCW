@@ -28,7 +28,7 @@ const db = require('./services/db');
 // Model
 const User = require('./models/users');
 
-// Middleware to pass session user to all views
+// Pass session user to all views
 app.use((req, res, next) => {
     res.locals.sessionUser = req.session.user || null;
     next();
@@ -192,44 +192,9 @@ app.get("/logout", (req, res) => {
 app.get('/dashboard', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
-        const userId = req.session.user.id;
-        const user = new User(userId);
-        const details = await user.getById();
-        const points = await db.query(
-            'SELECT * FROM user_points WHERE user_id = ?', [userId]
-        );
-        const badges = await db.query(
-            'SELECT * FROM user_badges WHERE user_id = ?', [userId]
-        );
-        const workoutCount = await db.query(
-            'SELECT COUNT(*) as count FROM workouts WHERE user_id = ?', [userId]
-        );
-        const recentWorkouts = await db.query(`
-            SELECT * FROM workouts 
-            WHERE user_id = ? 
-            ORDER BY date DESC 
-            LIMIT 5
-        `, [userId]);
-        const pendingRequests = await db.query(`
-            SELECT COUNT(*) as count FROM buddy_connections 
-            WHERE buddy_id = ? AND status = 'pending'
-        `, [userId]);
-        const rank = await db.query(`
-            SELECT COUNT(*) + 1 as user_rank 
-            FROM user_points 
-            WHERE total_points > COALESCE(
-                (SELECT total_points FROM user_points WHERE user_id = ?), 0
-            )
-        `, [userId]);
-        res.render('dashboard', {
-            user: details,
-            points: points[0] || null,
-            badges,
-            workoutCount: workoutCount[0].count,
-            recentWorkouts,
-            pendingRequests: pendingRequests[0].count,
-            rank: rank[0].user_rank
-        });
+        const user = new User(req.session.user.id);
+        const data = await user.getDashboardData();
+        res.render('dashboard', data);
     } catch (err) {
         console.error(err);
         res.status(500).send("Error loading dashboard");
@@ -252,37 +217,16 @@ app.get('/users', async (req, res) => {
     }
 });
 
+// -----------------------------
+// User Profile
+// -----------------------------
+
 app.get('/user/:id', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
         const user = new User(req.params.id);
-        const details = await user.getById();
-        const buddyProfile = await user.getBuddyProfile();
-        const tags = await user.getTags();
-        const workouts = await user.getWorkouts();
-        const points = await db.query(
-            'SELECT * FROM user_points WHERE user_id = ?', [req.params.id]
-        );
-        const badges = await db.query(
-            'SELECT * FROM user_badges WHERE user_id = ?', [req.params.id]
-        );
-        const workoutCount = await db.query(
-            'SELECT COUNT(*) as count FROM workouts WHERE user_id = ?', [req.params.id]
-        );
-        const avgRating = await db.query(
-            'SELECT AVG(rating) as avg, COUNT(*) as count FROM buddy_ratings WHERE rated_id = ?',
-            [req.params.id]
-        );
-        res.render('profile', {
-            user: details,
-            buddy: buddyProfile,
-            tags: tags,
-            workouts: workouts,
-            points: points[0] || null,
-            badges: badges,
-            workoutCount: workoutCount[0].count,
-            avgRating: avgRating[0]
-        });
+        const data = await user.getProfileData();
+        res.render('profile', data);
     } catch (err) {
         console.error(err);
         res.status(500).send("Error loading user page");
@@ -546,33 +490,35 @@ app.get('/connections', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
         const userId = req.session.user.id;
-        const requests = await db.query(`
-            SELECT u.id, u.first_name, u.last_name, 
-                   u.profile_picture_url, u.fitness_level
-            FROM buddy_connections bc
-            JOIN users u ON bc.user_id = u.id
-            WHERE bc.buddy_id = ? AND bc.status = 'pending'
-        `, [userId]);
-        const sent = await db.query(`
-            SELECT u.id, u.first_name, u.last_name,
-                   u.profile_picture_url, u.fitness_level
-            FROM buddy_connections bc
-            JOIN users u ON bc.buddy_id = u.id
-            WHERE bc.user_id = ? AND bc.status = 'pending'
-        `, [userId]);
-        const connections = await db.query(`
-            SELECT u.id, u.first_name, u.last_name,
-                   u.profile_picture_url, u.fitness_level
-            FROM buddy_connections bc
-            JOIN users u ON bc.buddy_id = u.id
-            WHERE bc.user_id = ? AND bc.status = 'accepted'
-            UNION
-            SELECT u.id, u.first_name, u.last_name,
-                   u.profile_picture_url, u.fitness_level
-            FROM buddy_connections bc
-            JOIN users u ON bc.user_id = u.id
-            WHERE bc.buddy_id = ? AND bc.status = 'accepted'
-        `, [userId, userId]);
+        const [requests, sent, connections] = await Promise.all([
+            db.query(`
+                SELECT u.id, u.first_name, u.last_name, 
+                       u.profile_picture_url, u.fitness_level
+                FROM buddy_connections bc
+                JOIN users u ON bc.user_id = u.id
+                WHERE bc.buddy_id = ? AND bc.status = 'pending'
+            `, [userId]),
+            db.query(`
+                SELECT u.id, u.first_name, u.last_name,
+                       u.profile_picture_url, u.fitness_level
+                FROM buddy_connections bc
+                JOIN users u ON bc.buddy_id = u.id
+                WHERE bc.user_id = ? AND bc.status = 'pending'
+            `, [userId]),
+            db.query(`
+                SELECT u.id, u.first_name, u.last_name,
+                       u.profile_picture_url, u.fitness_level
+                FROM buddy_connections bc
+                JOIN users u ON bc.buddy_id = u.id
+                WHERE bc.user_id = ? AND bc.status = 'accepted'
+                UNION
+                SELECT u.id, u.first_name, u.last_name,
+                       u.profile_picture_url, u.fitness_level
+                FROM buddy_connections bc
+                JOIN users u ON bc.user_id = u.id
+                WHERE bc.buddy_id = ? AND bc.status = 'accepted'
+            `, [userId, userId])
+        ]);
         res.render('connections', { requests, sent, connections });
     } catch (err) {
         console.error(err);
@@ -634,17 +580,17 @@ app.get('/messages/:id', async (req, res) => {
     if (!req.session.user) return res.redirect('/login');
     try {
         const otherId = req.params.id;
-        const messages = await db.query(`
-            SELECT m.*, u.first_name, u.last_name, u.profile_picture_url
-            FROM messages m
-            JOIN users u ON m.sender_id = u.id
-            WHERE (m.sender_id = ? AND m.receiver_id = ?)
-               OR (m.sender_id = ? AND m.receiver_id = ?)
-            ORDER BY m.created_at ASC
-        `, [req.session.user.id, otherId, otherId, req.session.user.id]);
-        const otherUser = await db.query(
-            'SELECT * FROM users WHERE id = ?', [otherId]
-        );
+        const [messages, otherUser] = await Promise.all([
+            db.query(`
+                SELECT m.*, u.first_name, u.last_name, u.profile_picture_url
+                FROM messages m
+                JOIN users u ON m.sender_id = u.id
+                WHERE (m.sender_id = ? AND m.receiver_id = ?)
+                   OR (m.sender_id = ? AND m.receiver_id = ?)
+                ORDER BY m.created_at ASC
+            `, [req.session.user.id, otherId, otherId, req.session.user.id]),
+            db.query('SELECT * FROM users WHERE id = ?', [otherId])
+        ]);
         res.render('chat', {
             messages,
             otherUser: otherUser[0],
@@ -727,20 +673,6 @@ app.get('/exercises', async (req, res) => {
     } catch (err) {
         console.error(err);
         res.status(500).send("Error fetching exercises");
-    }
-});
-
-// -----------------------------
-// DB test
-// -----------------------------
-
-app.get("/db_test", async (req, res) => {
-    try {
-        const results = await db.query('SELECT * FROM test_table');
-        res.send(results);
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("DB error");
     }
 });
 

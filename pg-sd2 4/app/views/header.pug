@@ -1,6 +1,7 @@
 header
   .container.nav-container
-    a.nav-brand(href='/') 💪 FitShare
+    a.nav-brand(href='/')
+      img.nav-logo(src='/fitshare-logo.png' alt='FitShare')
     nav.nav-links
       a(href='/') Home
       if sessionUser
@@ -30,7 +31,6 @@ script.
     localStorage.setItem('darkMode', isDark);
   }
 
-  // Load saved preference
   if (localStorage.getItem('darkMode') === 'true') {
     document.body.classList.add('dark-mode');
     document.getElementById('darkModeToggle').textContent = '☀️';
