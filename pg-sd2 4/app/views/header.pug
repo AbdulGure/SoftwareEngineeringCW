@@ -2,7 +2,8 @@ header
   .container.nav-container
     a.nav-brand(href='/')
       img.nav-logo(src='/fitshare-logo.png' alt='FitShare')
-    nav.nav-links
+    button#hamburger.hamburger(onclick='toggleMenu()') ☰
+    nav#nav-menu.nav-links
       a(href='/') Home
       if sessionUser
         if sessionUser.role === 'admin'
@@ -23,6 +24,11 @@ header
     button#darkModeToggle.dark-toggle(onclick='toggleDarkMode()') 🌙
 
 script.
+  function toggleMenu() {
+    const menu = document.getElementById('nav-menu');
+    menu.classList.toggle('nav-open');
+  }
+
   function toggleDarkMode() {
     document.body.classList.toggle('dark-mode');
     const btn = document.getElementById('darkModeToggle');

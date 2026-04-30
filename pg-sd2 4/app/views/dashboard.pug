@@ -6,7 +6,7 @@ block content
       if user.profile_picture_url
         img.dashboard-avatar(src=user.profile_picture_url alt=user.first_name)
       .welcome-text
-        h1 Welcome back, #{user.first_name}! 💪
+        h1 Welcome back, #{user.first_name}! 
         span.badge= user.fitness_level.toUpperCase()
 
     .dashboard-stats
