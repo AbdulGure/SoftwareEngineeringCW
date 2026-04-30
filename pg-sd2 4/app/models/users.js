@@ -41,6 +41,109 @@ class User {
         return await db.query(sql, [this.id]);
     }
 
+    // Get points for this user
+    async getPoints() {
+        const results = await db.query(
+            'SELECT * FROM user_points WHERE user_id = ?',
+            [this.id]
+        );
+        return results[0] || null;
+    }
+
+    // Get badges for this user
+    async getBadges() {
+        return await db.query(
+            'SELECT * FROM user_badges WHERE user_id = ?',
+            [this.id]
+        );
+    }
+
+    // Get total workout count for this user
+    async getWorkoutCount() {
+        const results = await db.query(
+            'SELECT COUNT(*) as count FROM workouts WHERE user_id = ?',
+            [this.id]
+        );
+        return results[0].count;
+    }
+
+    // Get average buddy rating for this user
+    async getAvgRating() {
+        const results = await db.query(
+            'SELECT AVG(rating) as avg, COUNT(*) as count FROM buddy_ratings WHERE rated_id = ?',
+            [this.id]
+        );
+        return results[0];
+    }
+
+    // Get recent workouts for dashboard
+    async getRecentWorkouts() {
+        return await db.query(`
+            SELECT * FROM workouts 
+            WHERE user_id = ? 
+            ORDER BY date DESC 
+            LIMIT 5
+        `, [this.id]);
+    }
+
+    // Get pending buddy requests count
+    async getPendingRequestsCount() {
+        const results = await db.query(`
+            SELECT COUNT(*) as count FROM buddy_connections 
+            WHERE buddy_id = ? AND status = 'pending'
+        `, [this.id]);
+        return results[0].count;
+    }
+
+    // Get leaderboard rank
+    async getRank() {
+        const results = await db.query(`
+            SELECT COUNT(*) + 1 as user_rank 
+            FROM user_points 
+            WHERE total_points > COALESCE(
+                (SELECT total_points FROM user_points WHERE user_id = ?), 0
+            )
+        `, [this.id]);
+        return results[0].user_rank;
+    }
+
+    // Get all data needed for the profile page
+    async getProfileData() {
+        const [details, buddyProfile, tags, workouts, points, badges, workoutCount, avgRating] = await Promise.all([
+            this.getById(),
+            this.getBuddyProfile(),
+            this.getTags(),
+            this.getWorkouts(),
+            this.getPoints(),
+            this.getBadges(),
+            this.getWorkoutCount(),
+            this.getAvgRating()
+        ]);
+        return { user: details, buddy: buddyProfile, tags, workouts, points, badges, workoutCount, avgRating };
+    }
+
+    // Get all data needed for the dashboard page
+    async getDashboardData() {
+        const [details, points, badges, workoutCount, recentWorkouts, pendingRequests, rank] = await Promise.all([
+            this.getById(),
+            this.getPoints(),
+            this.getBadges(),
+            this.getWorkoutCount(),
+            this.getRecentWorkouts(),
+            this.getPendingRequestsCount(),
+            this.getRank()
+        ]);
+        return {
+            user: details,
+            points,
+            badges,
+            workoutCount,
+            recentWorkouts,
+            pendingRequests,
+            rank
+        };
+    }
+
     // Find matching gym buddies by fitness level
     async findMatches() {
         const sql = `
