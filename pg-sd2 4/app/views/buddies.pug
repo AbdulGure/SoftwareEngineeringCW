@@ -7,13 +7,13 @@ block content
       each buddy in buddies
         .card
           .card-body
-            if buddy.profile_picture_url
-              img.card-avatar(src=buddy.profile_picture_url alt=buddy.first_name)
+            img.card-avatar(src='https://ui-avatars.com/api/?name=' + buddy.first_name + '+' + buddy.last_name + '&background=2c5f8a&color=fff&size=128' alt=buddy.first_name)
             h3= buddy.first_name + ' ' + buddy.last_name
             span.badge= buddy.fitness_level.toUpperCase()
             p= buddy.bio
             if buddy.goals
-              p.workout-meta Goals: #{buddy.goals}
+              - var goalsList = buddy.goals.replace(/[\[\]"]/g, '').split(',').map(function(g){ return g.trim().replace(/_/g, ' ') }).join(', ')
+              p.workout-meta Goals: #{goalsList}
             if buddy.availability
               p.workout-meta Available: #{buddy.availability}
             a.btn-small(href='/matches/' + buddy.id) Find Matches
